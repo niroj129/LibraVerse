@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraVerse.API", "LibraVerse.API\LibraVerse.API.csproj", "{659A19C2-AEBE-4C7F-8CD9-048A5EC16FAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraVerse.WASM", "LibraVerse.WASM\LibraVerse.WASM.csproj", "{ACE9AEF5-8C62-4546-B5F9-938731ACBD32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{659A19C2-AEBE-4C7F-8CD9-048A5EC16FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{659A19C2-AEBE-4C7F-8CD9-048A5EC16FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{659A19C2-AEBE-4C7F-8CD9-048A5EC16FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{659A19C2-AEBE-4C7F-8CD9-048A5EC16FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACE9AEF5-8C62-4546-B5F9-938731ACBD32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACE9AEF5-8C62-4546-B5F9-938731ACBD32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACE9AEF5-8C62-4546-B5F9-938731ACBD32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACE9AEF5-8C62-4546-B5F9-938731ACBD32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
