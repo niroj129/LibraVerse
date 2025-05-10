@@ -1,0 +1,53 @@
+﻿<div class="modal fade @(_isOpen ? "show" : "")" tabindex="-1" style="display: @(_isOpen ? "block" : "none")">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">@(_isEditMode ? "Edit Author" : "Add New Author")</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@_authorModel" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <InputText @bind-Value="_authorModel.Name" class="form-control" id="name" placeholder="Enter author name" />
+                        <ValidationMessage For="@(() => _authorModel.Name)" class="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <InputText @bind-Value="_authorModel.Email" class="form-control" id="email" placeholder="Enter author email" />
+                        <ValidationMessage For="@(() => _authorModel.Email)" class="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="biography" class="form-label">Biography</label>
+                        <InputTextArea @bind-Value="_authorModel.Biography" class="form-control" id="biography" rows="4" placeholder="Enter author biography" />
+                        <ValidationMessage For="@(() => _authorModel.Biography)" class="text-danger" />
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="Close">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+                            @if (_isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (_isOpen)
+{
+    <div class="modal-backdrop fade show"></div>
+}

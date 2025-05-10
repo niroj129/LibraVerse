@@ -1,0 +1,471 @@
+﻿@page "/books/{BookId:guid}/details"
+
+<div class="container-fluid py-4">
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (book == null)
+{
+    <div class="text-center py-5">
+        <div class="display-1 text-muted mb-4">
+            <i class="bi bi-exclamation-circle"></i>
+        </div>
+        <h3 class="text-muted">Book not found</h3>
+        <p class="text-muted">The book you're looking for doesn't exist or has been removed.</p>
+        <button class="btn btn-primary mt-3" @onclick="NavigateToBooks">
+            <i class="bi bi-arrow-left me-2"></i>Back to Books
+        </button>
+    </div>
+}
+else
+{
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/books" class="text-decoration-none">Books</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@book.Title</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <div class="col-md-4 book-cover-col">
+                    @if (!string.IsNullOrEmpty(book.CoverImage))
+                    {
+                        <img src="https://localhost:7115/images/@book.CoverImage" class="img-fluid book-detail-cover" alt="@book.Title">
+                    }
+                    else
+                    {
+                        <div class="book-cover-placeholder d-flex align-items-center justify-content-center">
+                            <i class="bi bi-book text-muted" style="font-size: 5rem;"></i>
+                        </div>
+                    }
+                    
+                    @if (book.Discount != null && book.Discount.MarkAsSale && book.Discount.EndDate > DateTime.Now)
+                    {
+                        <div class="discount-badge">
+                            <div class="discount-percentage">@book.Discount.DiscountPercentage%</div>
+                            <div class="discount-label">OFF</div>
+                        </div>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body p-4 p-xl-5">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h1 class="card-title mb-1">@book.Title</h1>
+                                <p class="text-muted mb-3">
+                                    by @(string.Join(", ", book.Authors.Select(a => a.Name)))
+                                </p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if (_role == "Admin")
+                                {
+                                    <button class="btn btn-outline-primary" @onclick="() => OpenEditBookDialog(book)">
+                                        <i class="bi bi-pencil me-2"></i>Edit
+                                    </button>
+                                    <button class="btn @(book.IsAvailable ? "btn-outline-danger" : "btn-outline-success")" @onclick="ToggleAvailability">
+                                        <i class="bi @(book.IsAvailable ? "bi-x-circle" : "bi-check-circle") me-2"></i>
+                                        @(book.IsAvailable ? "Mark Unavailable" : "Mark Available")
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        @if (book.Discount != null && book.Discount.MarkAsSale && book.Discount.EndDate > DateTime.Now)
+                        {
+                            <div class="discount-alert alert alert-danger mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="discount-icon me-3">
+                                        <i class="bi bi-tag-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">Special Offer!</h5>
+                                        <p class="mb-0">
+                                            Get <strong>@book.Discount.DiscountPercentage% OFF</strong> until @book.Discount.EndDate.ToString("MMMM d, yyyy")
+                                        </p>
+                                    </div>
+                                    @if (_role == "Admin")
+                                    {
+                                        <div class="ms-auto">
+                                            <button class="btn btn-sm btn-outline-light" @onclick="() => OpenEditDiscountModal(book.Discount)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else if (_role == "Admin")
+                        {
+                            <div class="no-discount-alert alert alert-light mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="discount-icon me-3">
+                                        <i class="bi bi-tag"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">No Active Discount</h5>
+                                        <p class="mb-0">
+                                            Create a discount to boost sales for this book.
+                                        </p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <button class="btn btn-sm btn-primary" @onclick="() => OpenCreateDiscountModal()">
+                                            <i class="bi bi-plus-circle me-2"></i>Add Discount
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <span class="badge bg-primary">@book.Format.Title</span>
+                            <span class="badge bg-secondary">@book.Genre</span>
+                            <span class="badge bg-info">@book.Language</span>
+                            @if (book.IsAvailable)
+                            {
+                                <span class="badge bg-success">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Not Available</span>
+                            }
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="text-muted me-2">Rating:</div>
+                                    <div class="d-flex align-items-center">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            var rating = book.Reviews.Any() ? Math.Round(book.Reviews.Average(r => r.Rating)) : 0;
+                                            <i class="bi @(i <= rating ? "bi-star-fill" : "bi-star") text-warning"></i>
+                                        }
+                                        <span class="ms-2">
+                                            @(book.Reviews.Any() ? book.Reviews.Average(r => r.Rating).ToString("0.0") : "N/A")
+                                            (@book.Reviews.Count reviews)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted">ISBN:</div>
+                                    <div>@book.Iban</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted">Publication:</div>
+                                    <div>@book.Publication.Title</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="text-muted">Published Date:</div>
+                                    <div>@book.PublishedDate.ToString("MMMM d, yyyy")</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted">Stock:</div>
+                                    <div>@book.Stock units</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted">Price:</div>
+                                    <div class="d-flex align-items-center">
+                                        @if (book.Discount is { MarkAsSale: true } && book.Discount.EndDate > DateTime.Now)
+                                        {
+                                            <span class="text-decoration-line-through text-muted me-2">Rs @book.Price.ToString("0.00")</span>
+                                            <span class="fs-4 fw-bold text-danger">Rs @((book.Price * (1 - book.Discount.DiscountPercentage / (double)100m)).ToString("0.00"))</span>
+                                            <span class="badge bg-danger ms-2">Rs @($"{book.Discount.DiscountPercentage:0}% OFF")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fs-4 fw-bold">Rs @book.Price.ToString("0.00")</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3">Description</h5>
+                            <p class="card-text">@book.Description</p>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary" disabled="@(!book.IsAvailable)" @onclick="() => ConfirmBookCart(book)">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                            <button class="btn btn-outline-primary" @onclick="() => ConfirmBookWishlist(book)" disabled="@(book.IsAddedToWishlist)">
+                                <i class="bi bi-heart me-2"></i>Add to Wishlist
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    if (_role == "Admin")
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Discount History</h5>
+                <button class="btn btn-sm btn-primary" @onclick="() => OpenCreateDiscountModal()">
+                    <i class="bi bi-plus-circle me-2"></i>Add Discount
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Percentage</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Sale</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var discount in book.Discounts.OrderByDescending(d => d.StartDate))
+                            {
+                                var now = DateTime.Now;
+                                var status = now < discount.StartDate ? "Upcoming" : 
+                                            now > discount.EndDate ? "Expired" : "Active";
+                                var statusClass = status == "Active" ? "bg-success" : 
+                                                status == "Upcoming" ? "bg-info" : "bg-secondary";
+                                
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold">@discount.DiscountPercentage%</span>
+                                    </td>
+                                    <td>@discount.StartDate.ToString("MMM d, yyyy")</td>
+                                    <td>@discount.EndDate.ToString("MMM d, yyyy")</td>
+                                    <td>
+                                        <span class="badge @statusClass">@status</span>
+                                    </td>
+                                    <td>
+                                        @if (discount.MarkAsSale)
+                                        {
+                                            <span class="badge bg-danger">Sale</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditDiscountModal(discount)" disabled="@(status == "Expired")">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Authors</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                @foreach (var author in book.Authors)
+                {
+                    <div class="col-md-6">
+                        <div class="d-flex">
+                            <div class="avatar-circle bg-primary text-white me-3">
+                                @author.Name.Substring(0, 1).ToUpper()
+                            </div>
+                            <div>
+                                <h5 class="mb-1">@author.Name</h5>
+                                <p class="text-muted small mb-2">@author.Email</p>
+                                <p class="mb-0">@(author.Biography.Length > 150 ? author.Biography.Substring(0, 150) + "..." : author.Biography)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Reviews (@book.Reviews.Count)</h5>
+            @if (book.IsPurchased)
+            {
+                <button class="btn btn-sm btn-outline-primary" @onclick="OpenReviewModal">
+                    <i class="bi bi-plus-circle me-2"></i>Add Review
+                </button>
+            }
+        </div>
+        <div class="card-body p-4">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="text-center mb-4">
+                        <h1 class="display-4 fw-bold mb-0">@(book.Reviews.Any() ? book.Reviews.Average(r => r.Rating).ToString("0.0") : "0.0")</h1>
+                        <div class="d-flex justify-content-center my-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var rating = book.Reviews.Any() ? Math.Round(book.Reviews.Average(r => r.Rating)) : 0;
+                                <i class="bi @(i <= rating ? "bi-star-fill" : "bi-star") text-warning fs-5"></i>
+                            }
+                        </div>
+                        <p class="text-muted">Based on @book.Reviews.Count reviews</p>
+                    </div>
+                    
+                    <div class="rating-bars">
+                        @for (int i = 5; i >= 1; i--)
+                        {
+                            var count = book.Reviews.Count(r => r.Rating == i);
+                            var percentage = book.Reviews.Any() ? (count * 100) / book.Reviews.Count : 0;
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-2" style="width: 40px;">@i <i class="bi bi-star-fill text-warning"></i></div>
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: @percentage%" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="ms-2 text-muted small" style="width: 40px;">@count</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="reviews-list">
+                        @foreach (var review in book.Reviews.OrderByDescending(r => r.Id))
+                        {
+                            <div class="review-item mb-4 pb-4 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-secondary text-white me-2">
+                                            @review.User.Name.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">@review.User.Name</h6>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star") text-warning"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <p class="mb-0">@review.Text</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+<!-- Book Form Modal Component -->
+<BookFormModal @ref="bookFormModal" OnSave="LoadBook" />
+
+<!-- Discount Form Modal Component -->
+<DiscountFormModal @ref="discountFormModal" OnSave="LoadBook" />
+
+<!-- Review Modal Component -->
+<ReviewModal @ref="reviewModal" OnReviewAdded="LoadBook" />
+
+<style>
+.book-detail-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-cover-col {
+    background-color: #f8f9fa;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.book-cover-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+}
+
+.avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.review-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: pulse 2s infinite;
+}
+
+.discount-percentage {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.discount-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.discount-alert {
+    border-left: 5px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.no-discount-alert {
+    border-left: 5px solid #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+.discount-icon {
+    font-size: 2rem;
+    color: #dc3545;
+}
+
+.no-discount-alert .discount-icon {
+    color: #6c757d;
+}
+</style>

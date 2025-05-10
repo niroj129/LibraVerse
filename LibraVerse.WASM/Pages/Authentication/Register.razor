@@ -1,0 +1,115 @@
+﻿@page "/register"
+@layout EmptyLayout
+
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="row w-100 justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="fw-bold mb-0">LibraVerse</h2>
+                    <p class="mb-0">Create a new account</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <EditForm Model="@_registerModel" OnValidSubmit="HandleRegistration">
+                        <DataAnnotationsValidator />
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @_errorMessage
+                            </div>
+                        }
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.Name" class="form-control" id="name"/>
+                                    <label for="name">Full Name</label>
+                                    <ValidationMessage For="@(() => _registerModel.Name)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.Email" class="form-control" id="email"/>
+                                    <label for="email">Email address</label>
+                                    <ValidationMessage For="@(() => _registerModel.Email)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.PhoneNumber" class="form-control" id="phoneNumber" type="number"/>
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <ValidationMessage For="@(() => _registerModel.PhoneNumber)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.Password" type="password" class="form-control" id="password" />
+                                    <label for="password">Password</label>
+                                    <ValidationMessage For="@(() => _registerModel.Password)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.Address" class="form-control" id="address" />
+                                    <label for="address">Address</label>
+                                    <ValidationMessage For="@(() => _registerModel.Address)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.City" class="form-control" id="city" />
+                                    <label for="city">City</label>
+                                    <ValidationMessage For="@(() => _registerModel.City)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputText @bind-Value="_registerModel.State" class="form-control" id="state" />
+                                    <label for="state">State</label>
+                                    <ValidationMessage For="@(() => _registerModel.State)" class="text-danger" />
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" @bind="_termsAccepted">
+                                    <label class="form-check-label" for="termsCheck">
+                                        I agree to the <a href="/terms" class="text-primary">Terms of Service</a> and <a href="/privacy" class="text-primary">Privacy Policy</a>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg" disabled="@(_isLoading || !_termsAccepted)">
+                                        @if (_isLoading)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            <span>Creating account...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Create Account</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+                <div class="card-footer bg-white py-4 border-0 text-center">
+                    <div class="small">
+                        Already have an account? <a href="/login" class="text-primary fw-bold">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

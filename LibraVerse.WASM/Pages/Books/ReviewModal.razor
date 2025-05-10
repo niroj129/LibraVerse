@@ -1,0 +1,35 @@
+﻿@if (isOpen)
+{
+    <div class="modal show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Add a Review</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <div class="d-flex gap-1">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var index = i;
+                                <i class="bi @(i <= rating ? "bi-star-fill text-warning" : "bi-star text-secondary") fs-4"
+                                   style="cursor:pointer"
+                                   @onclick="() => rating = index"></i>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Your Review</label>
+                        <textarea class="form-control" @bind="reviewText" rows="4" placeholder="Write your thoughts..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="Close">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SubmitReview">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

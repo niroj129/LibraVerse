@@ -1,0 +1,226 @@
+﻿@if (isVisible)
+{
+    <div class="modal show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-tag-fill me-2"></i>
+                        @(isEditMode ? "Edit Discount" : "Create Discount")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="markAsSale" @bind="model.MarkAsSale">
+                            <label class="form-check-label" for="markAsSale">Mark as Sale</label>
+                            <div class="form-text text-muted">
+                                When checked, this discount will be prominently displayed as a sale
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="discountPercentage" class="form-label">Discount Percentage (%)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="discountPercentage" 
+                                       min="0" max="100" step="1" @bind="model.DiscountPercentage">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <ValidationMessage For="@(() => model.DiscountPercentage)" />
+                            @if (model.DiscountPercentage < 0 || model.DiscountPercentage > 100)
+                            {
+                                <div class="text-danger mt-1">Percentage must be between 0 and 100</div>
+                            }
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" 
+                                       @bind="model.StartDate" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                <ValidationMessage For="@(() => model.StartDate)" />
+                                @if (model.StartDate < DateTime.Now)
+                                {
+                                    <div class="text-danger mt-1">Start date must be in the future</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="endDate" 
+                                       @bind="model.EndDate" min="@model.StartDate.ToString("yyyy-MM-dd")">
+                                <ValidationMessage For="@(() => model.EndDate)" />
+                                @if (model.EndDate < model.StartDate)
+                                {
+                                    <div class="text-danger mt-1">End date must be after start date</div>
+                                }
+                            </div>
+                        </div>
+
+                        @if (validationErrors.Any())
+                        {
+                            <div class="alert alert-danger mt-3">
+                                <p class="mb-2">Please correct the following errors:</p>
+                                <ul class="mb-0">
+                                    @foreach (var error in validationErrors)
+                                    {
+                                        <li>@error</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="HandleValidSubmit" 
+                            disabled="@(isSubmitting || !IsValid())">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Processing...</span>
+                        }
+                        else
+                        {
+                            <span>@(isEditMode ? "Update" : "Create")</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    private bool isVisible;
+    private bool isEditMode;
+    private bool isSubmitting;
+    private Guid? editDiscountId;
+    private Guid bookId;
+    private List<string> validationErrors = new();
+
+    private CreateDiscountDto model = new()
+    {
+        DiscountPercentage = 10,
+        StartDate = DateTime.Now.AddDays(1),
+        EndDate = DateTime.Now.AddDays(8),
+        MarkAsSale = true
+    };
+
+    public void Open(Guid bookId, DiscountDto? discount = null)
+    {
+        this.bookId = bookId;
+        validationErrors.Clear();
+
+        if (discount != null)
+        {
+            isEditMode = true;
+            editDiscountId = discount.Id;
+            
+            model = new CreateDiscountDto
+            {
+                BookId = bookId,
+                DiscountPercentage = discount.DiscountPercentage,
+                StartDate = discount.StartDate,
+                EndDate = discount.EndDate,
+                MarkAsSale = discount.MarkAsSale
+            };
+        }
+        else
+        {
+            isEditMode = false;
+            editDiscountId = null;
+            
+            model = new CreateDiscountDto
+            {
+                BookId = bookId,
+                DiscountPercentage = 10,
+                StartDate = DateTime.Now.AddDays(1),
+                EndDate = DateTime.Now.AddDays(8),
+                MarkAsSale = true
+            };
+        }
+        
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
+
+    private bool IsValid()
+    {
+        validationErrors.Clear();
+
+        if (model.DiscountPercentage < 0 || model.DiscountPercentage > 100)
+        {
+            validationErrors.Add("Discount percentage must be between 0 and 100.");
+        }
+
+        if (model.StartDate >= model.EndDate)
+        {
+            validationErrors.Add("Start date must be before end date.");
+        }
+
+        if (model.StartDate < DateTime.Now)
+        {
+            validationErrors.Add("Start date must be in the future.");
+        }
+
+        return !validationErrors.Any();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (!IsValid()) return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            HttpResponseMessage response;
+            
+            if (isEditMode && editDiscountId.HasValue)
+            {
+                var updateModel = new UpdateDiscountDto
+                {
+                    Id = editDiscountId.Value,
+                    DiscountPercentage = model.DiscountPercentage,
+                    StartDate = model.StartDate,
+                    EndDate = model.EndDate,
+                    MarkAsSale = model.MarkAsSale
+                };
+
+                await ApiClient.UpdateDiscountAsync(updateModel);
+            }
+            else
+            {
+                model.BookId = bookId;
+
+                await ApiClient.CreateDiscountAsync(model);
+            }
+        
+            Snackbar.Add($"Discount {(isEditMode ? "updated" : "created")} successfully", Severity.Success);
+            isVisible = false;
+            await OnSave.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+}

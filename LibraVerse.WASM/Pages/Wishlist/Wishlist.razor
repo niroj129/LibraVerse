@@ -1,0 +1,162 @@
+﻿@page "/wishlist"
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-6 fw-bold text-primary mb-0">
+                <i class="bi bi-heart-fill me-2"></i>My Wishlist
+            </h1>
+            <p class="text-muted">Books you're interested in</p>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (wishlistItems == null || wishlistItems.Count == 0)
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <div class="empty-wishlist-icon mb-4">
+                    <i class="bi bi-heart text-muted"></i>
+                </div>
+                <h3 class="text-muted">Your wishlist is empty</h3>
+                <p class="text-muted mb-4">Save books you're interested in for later.</p>
+                <button class="btn btn-primary" @onclick="NavigateToBooks">
+                    <i class="bi bi-book me-2"></i>Browse Books
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Wishlist Items (@wishlistItems.Count)</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-2" @onclick="AddAllToCart">
+                            <i class="bi bi-cart-plus me-2"></i>Add All to Cart
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="ConfirmClearWishlist">
+                            <i class="bi bi-trash me-2"></i>Clear Wishlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    @foreach (var item in wishlistItems)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3 p-0">
+                            <div class="wishlist-item p-3 h-100 position-relative">
+                                <div class="d-flex flex-column h-100">
+                                    <div class="d-flex mb-3">
+                                        @if (!string.IsNullOrEmpty(item.Book.CoverImage))
+                                        {
+                                            <img src="https://localhost:7115/images/@item.Book.CoverImage" class="wishlist-book-thumbnail me-3" alt="@item.Book.Title">
+                                        }
+                                        else
+                                        {
+                                            <div class="wishlist-book-thumbnail-placeholder me-3 d-flex align-items-center justify-content-center bg-light">
+                                                <i class="bi bi-book text-muted"></i>
+                                            </div>
+                                        }
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 book-title">@item.Book.Title</h6>
+                                            <p class="text-muted small mb-1">@(string.Join(", ", item.Book.Authors.Select(a => a.Name)))</p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-primary">@item.Book.Format.Title</span>
+                                                <span class="badge bg-secondary">@item.Book.Genre</span>
+                                            </div>
+                                            <div>
+                                                @if (item.Book.Discount != null && item.Book.Discount.MarkAsSale && item.Book.Discount.EndDate > DateTime.Now)
+                                                {
+                                                    <span class="text-decoration-line-through text-muted me-2">Rs @item.Book.Price.ToString("0.00")</span>
+                                                    <span class="fw-bold text-danger">Rs @((item.Book.Price * (1 - item.Book.Discount.DiscountPercentage / (double)100m)).ToString("0.00"))</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="fw-bold">Rs @item.Book.Price.ToString("0.00")</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-primary flex-grow-1" @onclick="() => AddToCart(item)" disabled="@(!item.Book.IsAvailable)">
+                                                <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFromWishlist(item)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="wishlist-date">
+                                    <small class="text-muted">Added on @item.RegisteredDate.ToString("MMM d, yyyy")</small>
+                                </div>
+                                @if (!item.Book.IsAvailable)
+                                {
+                                    <div class="position-absolute top-0 end-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">
+                                        <small>Out of Stock</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .empty-wishlist-icon {
+        font-size: 5rem;
+        color: #dee2e6;
+    }
+
+    .wishlist-book-thumbnail {
+        width: 80px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .wishlist-book-thumbnail-placeholder {
+        width: 80px;
+        height: 110px;
+        border-radius: 4px;
+    }
+
+    .wishlist-item {
+        border-bottom: 1px solid #f0f0f0;
+        border-right: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+
+    .wishlist-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .book-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .wishlist-date {
+        position: absolute;
+        bottom: 50px;
+        right: 8px;
+        font-size: 0.75rem;
+    }
+
+</style>

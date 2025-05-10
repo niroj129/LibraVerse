@@ -1,0 +1,95 @@
+﻿<div class="modal @(isOpen ? "show d-block" : "d-none")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">@(isEditMode ? "Edit" : "Create") Announcement</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <InputText id="title" class="form-control" @bind-Value="model.Title" />
+                        <ValidationMessage For="@(() => model.Title)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <InputTextArea id="description" class="form-control" rows="4" @bind-Value="model.Description" />
+                        <ValidationMessage For="@(() => model.Description)" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="type" class="form-label">Type</label>
+                            <InputSelect id="type" class="form-select" @bind-Value="model.Type" @onchange="HandleTypeChange">
+                                <option value="@AnnouncementType._1">General</option>
+                                <option value="@AnnouncementType._2">Offer</option>
+                            </InputSelect>
+                            <ValidationMessage For="@(() => model.Type)" />
+                        </div>
+                        <div class="col-md-6">
+                            @if (model.Type == AnnouncementType._2)
+                            {
+                                <label for="book" class="form-label">Book</label>
+                                <div class="input-group">
+                                    <select id="book" class="form-select" @bind="selectedBookId">
+                                        <option value="">Select a book</option>
+                                        @if (books != null)
+                                        {
+                                            @foreach (var book in books)
+                                            {
+                                                <option value="@book.Id">@book.Title</option>
+                                            }
+                                        }
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" @onclick="LoadBooks">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </div>
+                                if (string.IsNullOrEmpty(selectedBookId))
+                                {
+                                    <div class="text-danger mt-1">Please select a book for offer announcements</div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <InputDate id="startDate" class="form-control" @bind-Value="model.StartDate" />
+                            <ValidationMessage For="@(() => model.StartDate)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <InputDate id="endDate" class="form-control" @bind-Value="model.EndDate" />
+                            <ValidationMessage For="@(() => model.EndDate)" />
+                            @if (model.EndDate < model.StartDate)
+                            {
+                                <div class="text-danger mt-1">End date must be after start date</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary" @onclick="Close">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@(isSubmitting || (model.Type == AnnouncementType._2 && string.IsNullOrEmpty(selectedBookId)) || model.EndDate < model.StartDate)">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>

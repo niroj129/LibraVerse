@@ -1,0 +1,326 @@
+﻿@page "/assigned/orders"
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-6 fw-bold text-primary mb-0">
+                <i class="bi bi-journal-bookmark me-2"></i>My Orders
+            </h1>
+            <p class="text-muted">Track your book purchases</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Order History</h5>
+                <div class="d-flex gap-2">
+                    <select class="form-control" @onchange="HandleStatusChange">
+                        <option value="" selected="selected">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="NavigateToCart">
+                        <i class="bi bi-cart me-2"></i>Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="d-flex justify-content-center align-items-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (orders == null || orders.Items == null || orders.Items.Count == 0)
+        {
+            <div class="card-body text-center py-5">
+                <div class="empty-orders-icon mb-4">
+                    <i class="bi bi-box text-muted"></i>
+                </div>
+                <h3 class="text-muted">No orders found</h3>
+                <p class="text-muted mb-4">You haven't placed any orders yet.</p>
+                <button class="btn btn-primary" @onclick="NavigateToBooks">
+                    <i class="bi bi-book me-2"></i>Browse Books
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Items</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in orders.Items)
+                        {
+                            <tr class="order-row" @onclick="() => ShowOrderDetails(order)">
+                                <td>
+                                    <span class="fw-bold text-primary">@order.Id.ToString().Split('-')[0]</span>
+                                </td>
+                                <td>@order.OrderDate.ToString("MMM d, yyyy")</td>
+                                <td>@order.OrderDetails.Count items</td>
+                                <td>
+                                    <span class="fw-bold">Rs @order.GrandTotal.ToString("0.00")</span>
+                                    @if (order.DiscountPercentage > 0)
+                                    {
+                                        <span class="badge bg-success ms-2">@order.DiscountPercentage% OFF</span>
+                                    }
+                                </td>
+                                <td>
+                                    @switch (order.Status)
+                                    {
+                                        case OrderStatus._1:
+                                            <span class="badge bg-warning">Pending</span>
+                                            break;
+                                        case OrderStatus._2:
+                                            <span class="badge bg-success">Completed</span>
+                                            break;
+                                        case OrderStatus._3:
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">Unavailable</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowOrderDetails(order)" @onclick:stopPropagation="true">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        @if (order.Status == OrderStatus._1)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmCancelOrder(order)" @onclick:stopPropagation="true">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                <div>
+                    <span class="text-muted">Showing @(((orders.Page - 1) * orders.PageSize) + 1) to @Math.Min(orders.Page * orders.PageSize, orders.TotalCount) of @orders.TotalCount orders</span>
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        <li class="page-item @(orders.Page <= 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => ChangePage(orders.Page - 1)" disabled="@(orders.Page <= 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (int i = Math.Max(1, orders.Page - 2); i <= Math.Min(Math.Ceiling((double)orders.TotalCount / orders.PageSize), orders.Page + 2); i++)
+                        {
+                            var pageNumber = i;
+                            <li class="page-item @(orders.Page == pageNumber ? "active" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(pageNumber)">@pageNumber</button>
+                            </li>
+                        }
+                        <li class="page-item @(orders.Page >= Math.Ceiling((double)orders.TotalCount / orders.PageSize) ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => ChangePage(orders.Page + 1)" disabled="@(orders.Page >= Math.Ceiling((double)orders.TotalCount / orders.PageSize))">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal @(isOrderDetailsModalOpen ? "show d-block" : "d-none")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            @if (selectedOrder != null)
+            {
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Order Details #@selectedOrder.Id.ToString().Split('-')[0]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseOrderDetailsModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Order Information</h6>
+                            <p class="mb-1"><strong>Order ID:</strong> @selectedOrder.Id.ToString().Split('-')[0]</p>
+                            <p class="mb-1"><strong>Date:</strong> @selectedOrder.OrderDate.ToString("MMMM d, yyyy h:mm tt")</p>
+                            <p class="mb-1">
+                                <strong>Status:</strong>
+                                @switch (selectedOrder.Status)
+                                {
+                                    case OrderStatus._1:
+                                        <span class="badge bg-warning ms-2">Pending</span>
+                                        break;
+                                    case OrderStatus._2:
+                                        <span class="badge bg-success ms-2">Completed</span>
+                                        break;
+                                    case OrderStatus._3:
+                                        <span class="badge bg-danger ms-2">Cancelled</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary ms-2">Unavailable</span>
+                                        break;
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            @if (selectedOrder.User != null)
+                            {
+                                <h6 class="text-muted mb-2">Customer Information</h6>
+                                <p class="mb-1"><strong>Name:</strong> @selectedOrder.User.Name</p>
+                                <p class="mb-1"><strong>Email:</strong> @selectedOrder.User.Email</p>
+                            }
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3">Order Items</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book</th>
+                                    <th class="text-center">Price</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-center">Discount</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in selectedOrder.OrderDetails)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.Book.CoverImage))
+                                                {
+                                                    <img src="https://localhost:7115/images/@item.Book.CoverImage" class="order-book-thumbnail me-3" alt="@item.Book.Title">
+                                                }
+                                                else
+                                                {
+                                                    <div class="order-book-thumbnail-placeholder me-3 d-flex align-items-center justify-content-center bg-light">
+                                                        <i class="bi bi-book text-muted"></i>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <h6 class="mb-0">@item.Book.Title</h6>
+                                                    <small class="text-muted">@(string.Join(", ", item.Book.Authors.Select(a => a.Name)))</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">Rs @item.Book.Price.ToString("0.00")</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-center">
+                                            @if (item.BookDiscount > 0)
+                                            {
+                                                <span class="badge bg-success">@item.BookDiscount%</span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </td>
+                                        <td class="text-end fw-bold">Rs @item.GrandTotal.ToString("0.00")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            @if (selectedOrder.Status == OrderStatus._1)
+                            {
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Your order is being processed. You will receive an email when it ships.
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Order Summary</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span>Rs @selectedOrder.TotalAmount.ToString("0.00")</span>
+                                    </div>
+                                    @if (selectedOrder.DiscountPercentage > 0)
+                                    {
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Discount (@selectedOrder.DiscountPercentage%):</span>
+                                            <span class="text-danger">-Rs @((selectedOrder.TotalAmount - selectedOrder.GrandTotal).ToString("0.00"))</span>
+                                        </div>
+                                    }
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold">Total:</span>
+                                        <span class="fw-bold">Rs @selectedOrder.GrandTotal.ToString("0.00")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @if (selectedOrder.Status == OrderStatus._1)
+                    {
+                        <button type="button" class="btn btn-danger me-auto" @onclick="() => ConfirmCancelOrder(selectedOrder)">
+                            <i class="bi bi-x-circle me-2"></i>Cancel Order
+                        </button>
+                    }
+                    <button type="button" class="btn btn-primary" @onclick="() => NavigateToBooks()">
+                        <i class="bi bi-book me-2"></i>Continue Shopping
+                    </button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseOrderDetailsModal">
+                        Close
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .empty-orders-icon {
+        font-size: 5rem;
+        color: #dee2e6;
+    }
+
+    .order-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .order-row:hover {
+        background-color: #f8f9fa;
+    }
+
+    .order-book-thumbnail {
+        width: 50px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .order-book-thumbnail-placeholder {
+        width: 50px;
+        height: 70px;
+        border-radius: 4px;
+    }
+</style>

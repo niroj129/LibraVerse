@@ -1,0 +1,231 @@
+﻿@page "/authors"
+
+<div class="container-fluid py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="display-6 fw-bold text-primary mb-0">
+                <i class="bi bi-people-fill me-2"></i>Authors
+            </h1>
+            <p class="text-muted">Manage your library authors</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="OpenCreateAuthorDialog">
+                <i class="bi bi-plus-circle me-2"></i>Add Author
+            </button>
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 bg-light" 
+                               placeholder="Search authors by name or email..." 
+                               @bind="_searchTerm" 
+                               @bind:event="oninput" 
+                               @onkeyup="HandleSearch" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select class="form-control" @onchange="HandleStatusChange">
+                        <option value="" selected="selected">All</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 text-md-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn @(_viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("grid")'>
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                        <button type="button" class="btn @(_viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("list")'>
+                            <i class="bi bi-list-ul"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            @if (_isLoading)
+            {
+                <div class="card p-4 mt-4">
+                    <div class="d-flex justify-content-center align-items-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (_authors?.Items == null || _authors.Items.Count == 0)
+            {
+                <div class="card p-4 mt-4">
+                    <div class="text-center py-5">
+                        <div class="display-1 text-muted mb-4">
+                            <i class="bi bi-journal-x"></i>
+                        </div>
+                        <h3 class="text-muted">No authors found</h3>
+                        <p class="text-muted">Try adjusting your search or filter criteria</p>
+                        <button class="btn btn-outline-primary mt-3" @onclick="OpenCreateAuthorDialog">
+                            <i class="bi bi-plus-circle me-2"></i>Add your first author
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                if (_viewMode == "grid")
+                {
+                    <div class="row g-4 py-4">
+                        @foreach (var author in _authors.Items)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="avatar-circle bg-primary text-white me-3">
+                                                @author.Name.Substring(0, 1).ToUpper()
+                                            </div>
+                                            <div>
+                                                <h5 class="card-title mb-0">@author.Name</h5>
+                                                <p class="card-subtitle text-muted small mb-0">@author.Email</p>
+                                            </div>
+                                            <div class="ms-auto">
+                                                @if (author.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <p class="card-text small text-muted mb-0">
+                                            @(author.Biography.Length > 100 ? author.Biography.Substring(0, 100) + "..." : author.Biography)
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pt-0">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditAuthorDialog(author)">
+                                                <i class="bi bi-pencil me-1"></i> Edit
+                                            </button>
+                                            @if (author.IsActive)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDeleteAuthor(author)">
+                                                    <i class="bi bi-trash me-1"></i> Deactivate
+                                                </button>
+                                                
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-sm btn-outline-success" @onclick="() => ConfirmDeleteAuthor(author)">
+                                                    <i class="bi bi-exposure"></i> Activate
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Biography</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var author in _authors.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-primary text-white me-3">
+                                                    @author.Name.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <span class="fw-medium">@author.Name</span>
+                                            </div>
+                                        </td>
+                                        <td>@author.Email</td>
+                                        <td>@(author.Biography.Length > 50 ? author.Biography.Substring(0, 50) + "..." : author.Biography)</td>
+                                        <td>
+                                            @if (author.IsActive)
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inactive</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group float-end" role="group">
+                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditAuthorDialog(author)">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                @if (author.IsActive)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDeleteAuthor(author)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success" @onclick="() => ConfirmDeleteAuthor(author)">
+                                                        <i class="bi bi-exposure"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                    <div>
+                        <span class="text-muted">Showing @(((_authors.Page - 1) * _authors.PageSize) + 1) to @Math.Min(_authors.Page * _authors.PageSize, _authors.TotalCount) of @_authors.TotalCount entries</span>
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item @(_authors.Page <= 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(_authors.Page - 1)" disabled="@(_authors.Page <= 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                            </li>
+                            @for (int i = Math.Max(1, _authors.Page - 2); i <= Math.Min(Math.Ceiling((double)_authors.TotalCount / _authors.PageSize), _authors.Page + 2); i++)
+                            {
+                                var pageNumber = i;
+                                <li class="page-item @(_authors.Page == pageNumber ? "active" : "")">
+                                    <button class="page-link" @onclick="() => ChangePage(pageNumber)">@pageNumber</button>
+                                </li>
+                            }
+                            <li class="page-item @(_authors.Page >= Math.Ceiling((double)_authors.TotalCount / _authors.PageSize) ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(_authors.Page + 1)" disabled="@(_authors.Page >= Math.Ceiling((double)_authors.TotalCount / _authors.PageSize))">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<AuthorFormModal @ref="AuthorFormModal" OnSave="LoadAuthors" />

@@ -1,0 +1,198 @@
+﻿<div class="modal @(isOpen ? "show d-block" : "d-none")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">@(isEditMode ? "Edit Book" : "Add New Book")</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <InputText @bind-Value="bookModel.Title" class="form-control" id="title" placeholder="Enter book title" />
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="format" class="form-label">Format</label>
+                                        <InputSelect @bind-Value="@_formatId" class="form-select" id="format">
+                                            <option value="@Guid.Empty">Select a Format</option>
+                                            @foreach (var format in formats)
+                                            {
+                                                <option value="@format.Id">@format.Title</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="publication" class="form-label">Publication</label>
+                                        <InputSelect @bind-Value="_publicationId" class="form-select" id="publication">
+                                            <option value="@Guid.Empty">Select a Publication</option>
+                                            @foreach (var publication in publications)
+                                            {
+                                                <option value="@publication.Id">@publication.Title</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="language" class="form-label">Language</label>
+                                        <InputSelect @bind-Value="bookModel.Language" class="form-select" id="language">
+                                            <option value="Russian">Russian</option>
+                                            <option value="English">English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="German">German</option>
+                                            <option value="Nepali">Nepali</option>
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="genre" class="form-label">Genre</label>
+                                        <InputSelect @bind-Value="bookModel.Genre" class="form-select" id="genre">
+                                            <option value="Science Fiction">Science Fiction</option>
+                                            <option value="Non Fiction">Non Fiction</option>
+                                            <option value="Adventure">Adventure</option>
+                                            <option value="Biography">Biography</option>
+                                            <option value="Thriller">Thriller</option>
+                                            <option value="Children">Children</option>
+                                            <option value="Romance">Romance</option>
+                                            <option value="Fiction">Fiction</option>
+                                            <option value="Fantasy">Fantasy</option>
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="price" class="form-label">Price</label>
+                                        <InputNumber @bind-Value="bookModel.Price" class="form-control" id="price" placeholder="0.00" step="0.01" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="stock" class="form-label">Stock</label>
+                                        <InputNumber @bind-Value="bookModel.Stock" class="form-control" id="stock" placeholder="0" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="iban" class="form-label">ISBN</label>
+                                <InputText @bind-Value="bookModel.Iban" class="form-control" id="iban" placeholder="Enter ISBN" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="publishedDate" class="form-label">Publication Date</label>
+                                <InputDate @bind-Value="bookModel.PublishedDate" class="form-control" id="publishedDate" />
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Cover Image</label>
+                                <div class="cover-preview-container mb-2 @(coverImageUrl == null ? "d-none" : "")">
+                                    <img src="@coverImageUrl" class="img-fluid rounded cover-preview" alt="Cover preview" />
+                                </div>
+                                <div class="cover-placeholder @(coverImageUrl != null ? "d-none" : "")">
+                                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                        <i class="bi bi-image text-muted mb-2" style="font-size: 2rem;"></i>
+                                        <span class="text-muted">No image selected</span>
+                                    </div>
+                                </div>
+                                <InputFile OnChange="OnFileChange" class="form-control mt-2" accept="image/*" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Authors</label>
+                                <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach (var author in authors)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   value="@author.Id"
+                                                   id="author-@author.Id"
+                                                   checked="@selectedAuthors.Contains(author.Id)"
+                                                   @onchange="@(e => ToggleAuthor(author.Id, (bool)e.Value!))" />
+                                
+                                            <label class="form-check-label" for="author-@author.Id">
+                                                @author.Name
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (!selectedAuthors.Any())
+                                {
+                                    <div class="text-danger mt-1">Please select at least one author</div>
+                                }
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <InputCheckbox @bind-Value="bookModel.IsAvailable" class="form-check-input" id="isAvailable" />
+                                <label class="form-check-label" for="isAvailable">Available for purchase</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <InputTextArea @bind-Value="bookModel.Description" class="form-control" id="description" rows="4" placeholder="Enter book description" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="Close">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@(isSaving || !selectedAuthors.Any())" @onclick="HandleSubmit">
+                            @if (isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save</span>
+                            }
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cover-preview-container {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .cover-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .cover-placeholder {
+        width: 100%;
+        height: 200px;
+        border: 1px dashed #dee2e6;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+</style>

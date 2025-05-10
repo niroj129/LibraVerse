@@ -1,0 +1,347 @@
+﻿@page "/books"
+
+<div class="container-fluid py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="display-6 fw-bold text-primary mb-0">
+                <i class="bi bi-book-half me-2"></i>Books
+            </h1>
+            <p class="text-muted">Manage your library collection</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="OpenCreateBookDialog">
+                <i class="bi bi-plus-circle me-2"></i>Add Book
+            </button>
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 bg-light" 
+                               placeholder="Search books by title..." 
+                               @bind="_searchTerm" 
+                               @bind:event="oninput" 
+                               @onkeyup="HandleSearch" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <select class="form-select" @onchange="HandleFormatChange">
+                        <option value="">All Formats</option>
+                        @foreach (var format in _formats)
+                        {
+                            <option value="@format.Id">@format.Title</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <select class="form-select" @onchange="HandlePublicationChange">
+                        <option value="">All Publications</option>
+                        @foreach (var publication in _publications)
+                        {
+                            <option value="@publication.Id">@publication.Title</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <select class="form-select" @onchange="HandleStatusChange">
+                        <option value="">All Books</option>
+                        <option value="Available">Available</option>
+                        <option value="Unavailable">Not Available</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 text-md-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn @(_viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("grid")'>
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                        <button type="button" class="btn @(_viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("list")'>
+                            <i class="bi bi-list-ul"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-content-center align-items-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (_books?.Items == null || _books.Items.Count == 0)
+        {
+            <div class="text-center py-5">
+                <div class="display-1 text-muted mb-4">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <h3 class="text-muted">No books found</h3>
+                <p class="text-muted">Try adjusting your search or filter criteria</p>
+                <button class="btn btn-outline-primary mt-3" @onclick="OpenCreateBookDialog">
+                    <i class="bi bi-plus-circle me-2"></i>Add your first book
+                </button>
+            </div>
+        }
+        else
+        {
+            @if (_viewMode == "grid")
+            {
+                <div class="py-4">
+                    <div class="row g-4">
+                        @foreach (var book in _books.Items)
+                        {
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                <div class="card h-100 book-card shadow-sm border-0 position-relative">
+                                    @if (book.Discount is { MarkAsSale: true } && book.Discount.EndDate > DateTime.Now)
+                                    {
+                                        <div class="position-absolute top-0 start-0 bg-danger text-white py-1 px-2 m-2 rounded-pill">
+                                            <small>@($"{book.Discount.DiscountPercentage:0}% OFF")</small>
+                                        </div>
+                                    }
+                                    
+                                    @if (!book.IsAvailable)
+                                    {
+                                        <div class="position-absolute top-0 end-0 bg-dark text-white py-1 px-2 m-2 rounded-pill">
+                                            <small>Out of Stock</small>
+                                        </div>
+                                    }
+                                    
+                                    <div class="book-cover-container">
+                                        @if (!string.IsNullOrEmpty(book.CoverImage))
+                                        {
+                                            <img src="https://localhost:7115/images/@book.CoverImage" class="card-img-top book-cover" alt="@book.Title">
+                                        }
+                                        else
+                                        {
+                                            <div class="placeholder-cover d-flex align-items-center justify-content-center bg-light">
+                                                <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="card-title mb-0 text-truncate" title="@book.Title">@book.Title</h5>
+                                        </div>
+                                        <p class="card-text small text-muted mb-2">
+                                            @(string.Join(", ", book.Authors.Select(a => a.Name)))
+                                        </p>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-primary me-2">@book.Format.Title</span>
+                                            <span class="badge bg-secondary">@book.Genre</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mt-auto">
+                                            @if (book.Discount is { MarkAsSale: true } && book.Discount.EndDate > DateTime.Now)
+                                            {
+                                                <span class="text-decoration-line-through text-muted me-2">Rs @book.Price.ToString("0.00")</span>
+                                                <span class="fw-bold text-danger">Rs @((book.Price * (1 - book.Discount.DiscountPercentage / (double)100m))).ToString("0.00")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold">Rs @book.Price.ToString("0.00")</span>
+                                            }
+                                            
+                                            <div class="ms-auto">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                                    <span class="small">
+                                                        @(book.Reviews.Any() ? book.Reviews.Average(r => r.Rating).ToString("0.0") : "N/A")
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pt-0">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-primary flex-grow-1" @onclick="() => NavigateToDetails(book.Id)">
+                                                <i class="bi bi-eye me-1"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => OpenEditBookDialog(book)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm @(book.IsAvailable ? "btn-outline-danger" : "btn-outline-success")" @onclick="() => ToggleAvailability(book.Id)">
+                                                <i class="bi @(book.IsAvailable ? "bi-x-circle" : "bi-check-circle")"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Book</th>
+                                <th scope="col">Format</th>
+                                <th scope="col">Genre</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Stock</th>
+                                <th scope="col">Rating</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in _books.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(book.CoverImage))
+                                            {
+                                                <img src="https://localhost:7115//images/@book.CoverImage" class="book-thumbnail me-3" alt="@book.Title">
+                                            }
+                                            else
+                                            {
+                                                <div class="book-thumbnail-placeholder me-3 d-flex align-items-center justify-content-center bg-light">
+                                                    <i class="bi bi-book text-muted"></i>
+                                                </div>
+                                            }
+                                            <div>
+                                                <h6 class="mb-0">@book.Title</h6>
+                                                <small class="text-muted">@(string.Join(", ", book.Authors.Select(a => a.Name)))</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-primary">@book.Format.Title</span></td>
+                                    <td>@book.Genre</td>
+                                    <td>
+                                        @if (book.Discount is { MarkAsSale: true } && book.Discount.EndDate > DateTime.Now)
+                                        {
+                                            <span class="text-decoration-line-through text-muted me-1">Rs @book.Price.ToString("0.00")</span>
+                                            <span class="fw-bold text-danger">Rs @(book.Price * (1 - book.Discount.DiscountPercentage / (double)100m)).ToString("0.00")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Rs @book.Price.ToString("0.00")</span>
+                                        }
+                                    </td>
+                                    <td>@book.Stock</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-star-fill text-warning me-1"></i>
+                                            <span>@(book.Reviews.Any() ? book.Reviews.Average(r => r.Rating).ToString("0.0") : "N/A")</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (book.IsAvailable)
+                                        {
+                                            <span class="badge bg-success">Available</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Not Available</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToDetails(book.Id)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => OpenEditBookDialog(book)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm @(book.IsAvailable ? "btn-outline-danger" : "btn-outline-success")" @onclick="() => ToggleAvailability(book.Id)">
+                                                <i class="bi @(book.IsAvailable ? "bi-x-circle" : "bi-check-circle")"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                <div>
+                    <span class="text-muted">Showing @(((_books.Page - 1) * _books.PageSize) + 1) to @Math.Min(_books.Page * _books.PageSize, _books.TotalCount) of @_books.TotalCount entries</span>
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        <li class="page-item @(_books.Page <= 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => ChangePage(_books.Page - 1)" disabled="@(_books.Page <= 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (int i = Math.Max(1, _books.Page - 2); i <= Math.Min(Math.Ceiling((double)_books.TotalCount / _books.PageSize), _books.Page + 2); i++)
+                        {
+                            var pageNumber = i;
+                            <li class="page-item @(_books.Page == pageNumber ? "active" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(pageNumber)">@pageNumber</button>
+                            </li>
+                        }
+                        <li class="page-item @(_books.Page >= Math.Ceiling((double)_books.TotalCount / _books.PageSize) ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => ChangePage(_books.Page + 1)" disabled="@(_books.Page >= Math.Ceiling((double)_books.TotalCount / _books.PageSize))">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<BookFormModal @ref="bookFormModal" OnSave="LoadBooks" />
+
+<style>
+    .book-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .book-cover-container {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+
+    .book-cover {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+
+    .book-card:hover .book-cover {
+        transform: scale(1.05);
+    }
+
+    .placeholder-cover {
+        width: 100%;
+        height: 100%;
+    }
+
+    .book-thumbnail {
+        width: 50px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .book-thumbnail-placeholder {
+        width: 50px;
+        height: 70px;
+        border-radius: 4px;
+    }
+</style>
