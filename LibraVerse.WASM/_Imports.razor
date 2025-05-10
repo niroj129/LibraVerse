@@ -1,0 +1,22 @@
+﻿@using MudBlazor
+@using System.Net.Http
+@using LibraVerse.WASM
+@using Microsoft.JSInterop
+@using System.Net.Http.Json
+@using LibraVerse.WASM.Layout
+@using LibraVerse.WASM.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsRuntime
+@inject IDialogService DialogService
+@inject LibraVerseApiClient ApiClient
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationProviderStateService AuthenticationStateService

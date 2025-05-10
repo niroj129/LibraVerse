@@ -1,0 +1,50 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="page-container @(_sidebarExpanded ? "" : "sidebar-collapsed")">
+    <div class="sidebar @(_sidebarExpanded ? "" : "collapsed")">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <header class="top-header">
+            <div class="d-flex align-items-center">
+                <button class="btn sidebar-toggle" @onclick="ToggleSidebar">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <div class="page-title d-none d-md-block">
+                    @GetPageTitle()
+                </div>
+            </div>
+            
+            <div class="header-actions d-flex align-items-center">
+                @if (!_isAuthenticated)
+                {
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" Class="rounded-pill px-4" OnClick="NavigateToLogin">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                    </MudButton>
+                }
+                else
+                {
+                    <button class="btn dropdown-toggle user-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar-circle bg-primary text-white me-2">
+                            @(_userName?.Substring(0, 1).ToUpper() ?? "U")
+                        </div>
+                        <span class="d-none d-md-inline">@_userName</span>
+                    </button>
+                }
+            </div>
+        </header>
+
+        <div class="content-container">
+            <Notification />
+            <div class="content">
+                @Body
+            </div>
+        </div>
+    </div>
+</div>

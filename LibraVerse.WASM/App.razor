@@ -1,0 +1,21 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <h3>You are not authorized to view this page.</h3>
+                    <p>Please <a href="/login">log in</a> first.</p>
+                </NotAuthorized>
+                <Authorizing>
+                    <h3>Checking your credentials...</h3>
+                </Authorizing>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <h3>404 - Not Found</h3>
+                <p>That page doesn't exist.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
