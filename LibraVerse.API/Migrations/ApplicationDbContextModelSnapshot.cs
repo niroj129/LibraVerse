@@ -4,7 +4,6 @@ using LibraVerse.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,58 +15,54 @@ namespace LibraVerse.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
             modelBuilder.Entity("LibraVerse.Models.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -86,40 +81,40 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Biography")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -136,68 +131,68 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CoverImage")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("FormatId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Genre")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Iban")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAvailable")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Language")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("PublicationId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("PublishedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Stock")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -218,34 +213,34 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -266,37 +261,37 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Count")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -317,43 +312,43 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("DiscountPercentage")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("MarkAsSale")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -372,36 +367,36 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -418,46 +413,46 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("DiscountPercentage")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("GrandTotal")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -476,46 +471,46 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("BookDiscount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("GrandTotal")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("NetTotal")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -536,36 +531,36 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -582,41 +577,41 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -637,41 +632,41 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Role")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -682,34 +677,34 @@ namespace LibraVerse.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
