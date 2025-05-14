@@ -1,20 +1,60 @@
-﻿<CascadingAuthenticationState>
+﻿@using LibraVerse.WASM.Shared.Layouts
+@using LibraVerse.WASM.Shared.Components
+@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
-                    <h3>You are not authorized to view this page.</h3>
-                    <p>Please <a href="/login">log in</a> first.</p>
+                    <AuthenticationStateProvider.Unauthorized>
+                        <MudCard Class="mx-auto my-8 pa-4" Style="max-width: 500px;">
+                            <MudCardHeader>
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Class="mr-3" />
+                                <MudText Typo="Typo.h5">Access Restricted</MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText>
+                                    You don't have the necessary permissions to view this page.
+                                    Please sign in with an account that has appropriate access.
+                                </MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Filled" 
+                                           Color="Color.Primary" 
+                                           Href="/login" 
+                                           StartIcon="@Icons.Material.Filled.Login">
+                                    Sign In
+                                </MudButton>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Secondary"
+                                           Href="/"
+                                           StartIcon="@Icons.Material.Filled.Home">
+                                    Return Home
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </AuthenticationStateProvider.Unauthorized>
                 </NotAuthorized>
                 <Authorizing>
-                    <h3>Checking your credentials...</h3>
+                    <AuthenticationStateProvider.Authorizing>
+                        <div class="d-flex justify-center align-center" style="height: 100vh;">
+                            <MudProgressCircular Color="Color.Primary" 
+                                                Size="Size.Large" 
+                                                Indeterminate="true" />
+                            <MudText Typo="Typo.h6" Class="ml-4">
+                                Verifying your credentials...
+                            </MudText>
+                        </div>
+                    </AuthenticationStateProvider.Authorizing>
                 </Authorizing>
             </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
+            <PageTitle>Not Found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <h3>404 - Not Found</h3>
-                <p>That page doesn't exist.</p>
+                <NotFoundPage />
             </LayoutView>
         </NotFound>
     </Router>
