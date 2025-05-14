@@ -3,6 +3,7 @@ using System;
 using LibraVerse.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LibraVerse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250501174431_DbSetup")]
+    partial class DbSetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,7 +313,7 @@ namespace LibraVerse.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Cart");
                 });
 
             modelBuilder.Entity("LibraVerse.Models.Discount", b =>
@@ -478,9 +481,6 @@ namespace LibraVerse.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("BookDiscount")
-                        .HasColumnType("numeric");
-
                     b.Property<Guid>("BookId")
                         .HasColumnType("uuid");
 
@@ -495,9 +495,6 @@ namespace LibraVerse.Migrations
 
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("GrandTotal")
-                        .HasColumnType("numeric");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -898,7 +895,7 @@ namespace LibraVerse.Migrations
             modelBuilder.Entity("LibraVerse.Models.Discount", b =>
                 {
                     b.HasOne("LibraVerse.Models.Book", "Book")
-                        .WithMany("Discounts")
+                        .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1045,7 +1042,7 @@ namespace LibraVerse.Migrations
             modelBuilder.Entity("LibraVerse.Models.Review", b =>
                 {
                     b.HasOne("LibraVerse.Models.Book", "Book")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1123,10 +1120,6 @@ namespace LibraVerse.Migrations
             modelBuilder.Entity("LibraVerse.Models.Book", b =>
                 {
                     b.Navigation("BookAuthors");
-
-                    b.Navigation("Discounts");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("LibraVerse.Models.Order", b =>
